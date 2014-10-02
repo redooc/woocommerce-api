@@ -14,7 +14,7 @@ class WC_API_Client {
 	/**
 	 * API base endpoint
 	 */
-	const API_ENDPOINT = 'wc-api/v1/';
+	const API_ENDPOINT = 'wc-api/v2/';
 
 	/**
 	 * The HASH alorithm to use for oAuth signature, SHA256 or SHA1
@@ -121,7 +121,7 @@ class WC_API_Client {
 	 * @return mixed|json string
 	 */
 	public function update_order( $order_id, $data = array() ) {
-		return $this->_make_api_call( 'orders/' . $order_id, $data, 'POST' );
+		return $this->_make_api_call( 'orders/' . $order_id, array(), 'POST', $data );
 	}
 
 	/**
@@ -324,11 +324,12 @@ class WC_API_Client {
 	/**
 	 * Make the call to the API
 	 * @param  string $endpoint
-	 * @param  array  $params
+	 * @param  array  $params flat array
 	 * @param  string $method
+	 * @param  mixed  $method POST content
 	 * @return mixed|json string
 	 */
-	private function _make_api_call( $endpoint, $params = array(), $method = 'GET' ) {
+	private function _make_api_call( $endpoint, $params = array(), $method = 'GET', $body = null ) {
 		$ch = curl_init();
 
 		// Check if we must use Basic Auth or 1 legged oAuth, if SSL we use basic, if not we use OAuth 1.0a one-legged
@@ -357,7 +358,7 @@ class WC_API_Client {
 
         if ( 'POST' === $method ) {
 			curl_setopt( $ch, CURLOPT_POST, true );
-			curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $params ) );
+			curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
     	} else if ( 'DELETE' === $method ) {
 			curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'DELETE' );
     	}
