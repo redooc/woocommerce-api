@@ -115,10 +115,22 @@ class WC_API_Client {
 	}
 
 	/**
+	 * Create an order note
+	 * @param  integer $order_id
+	 * @param  mixed   $data   object/array('order_note' => array( 'order_note'=>string, 'customer_note'=>bool);
+	 * @return mixed|json string
+	 */
+	public function create_order_note( $order_id, $data ) {
+		return $this->_make_api_call( 'orders/' . $order_id . '/notes', array(), 'POST', $data );
+	}
+
+	/**
 	 * Update the order, currently only status update suported by API
 	 * @param  integer $order_id
-	 * @param  array  $data
+	 * @param  array  $data  object/array( 'order' => array() );
 	 * @return mixed|json string
+	 *
+	 * (note: WC calls this 'edit_order')
 	 */
 	public function update_order( $order_id, $data = array() ) {
 		return $this->_make_api_call( 'orders/' . $order_id, array(), 'POST', $data );
