@@ -341,7 +341,7 @@ class WC_API_Client {
 	 * @param  mixed  $method POST content
 	 * @return mixed|json string
 	 */
-	private function _make_api_call( $endpoint, $params = array(), $method = 'GET', $body = null ) {
+	public function _make_api_call( $endpoint, $params = array(), $method = 'GET', $body = null ) {
 		$ch = curl_init();
 
 		// Check if we must use Basic Auth or 1 legged oAuth, if SSL we use basic, if not we use OAuth 1.0a one-legged
@@ -375,16 +375,27 @@ class WC_API_Client {
 			curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'DELETE' );
     	}
 
+		curl_setopt($ch, CURLOPT_HEADER, 1);
+		curl_setopt($ch, CURLINFO_HEADER_OUT, 1);
+
 		$return = curl_exec( $ch );
 
 		$code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+
+		// sometimes a HTTP/1.1 100 Continue is returned, so there will be multiple header lines.
+		$parts = explode( "\r\n\r\n", $return );
+		$header = null;
+		while ( count($parts) && preg_match( "@^HTTP/\d@", $parts[0]  ) )
+			$header = array_shift( $parts );
+		$return_no_headers =
+		$return = implode( "\r\n\r\n", $parts );
 
 		if ( $this->_return_as_object ) {
 			$return = json_decode( $return );
 		}
 
 		if ( empty( $return ) ) {
-			$return = '{"errors":[{"code":"' . $code . '","message":"cURL HTTP error ' . $code . '"}]}';
+			$return = '{"errors":[{"code":"' . $code . '","message":"cURL HTTP error ' . $code . '","details":"'.addslashes($return_no_headers).'"}]}';
 			$return = json_decode( $return );
 		}
 		return $return;
