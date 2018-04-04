@@ -1,8 +1,8 @@
 {
   "name": "redooc/woocommerce-api",
   "description": "WooCommerce API Client using namespaces",
-  "license": "GPL v3",
-  "version": "2.1.1",
+  "license": "GPL-3.0-only",
+  "version": "2.1.2",
   "authors": [
     {
         "name": "Max Rice",
